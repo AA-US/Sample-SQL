@@ -23,3 +23,26 @@ SHOW DATABASES;
 
 -- Create table sql
 
+create table Reservation
+(
+		ReservationId INT UNSIGNED NOT NULL AUTO_INCREMENT primary key,
+		LastName varchar(32) NOT NULL,
+        FirstName varchar(32) NOT NULL,				
+		PhoneNumber	varchar(16) NULL,
+		IsMobilePhone BIT NULL,
+		EmailAddress VARCHAR(64) NULL,
+        PartySize TINYINT UNSIGNED NOT NULL constraint CK_Reservation_PartySize Check(PartySize > 0 and PartySize < 7) enforced,			<-- 0 < PartySize < 7
+		ReservationTime datetime not null,
+		DateReserved datetime not null default current_timestamp,
+		LastUpdated DateTime Not Null Default Current_timestamp On Update Current_TimeStamp,
+        IsCancelled bit not null default (0)
+        
+);
+
+
+-- observe created table in database
+show tables;
+
+describe reservation;
+
+Drop table reservation;
