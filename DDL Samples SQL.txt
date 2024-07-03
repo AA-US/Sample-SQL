@@ -16,3 +16,10 @@ COLLATE utf8mb4_danish_ci;
 SHOW CREATE DATABASE demodb; -- gives sql code to create db
 
 SHOW DATABASES;-- shows a list of all databases
+
+-- drop database demodb
+Drop database demodb;
+SHOW DATABASES;
+
+-- Create table sql
+
