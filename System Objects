@@ -1,0 +1,126 @@
+--System objects
+exec sp_columns [Employees]-- column info on table
+
+Select * From INFORMATION_SCHEMA.COLUMNS Where TABLE_NAME = 'Employees'
+
+EXEC sp_columns @table_name = N'Employees',  
+   @table_owner = N'dbo'; 
+
+select *
+from INFORMATION_SCHEMA.COLUMNS
+where TABLE_NAME='Employees'
+
+sp_columns 'Employees'
+   
+EXEC sp_help [Employees] -- more info on table
+
+SELECT  s.name AS [schema],
+        t.name AS [table],
+        c.name AS [column],
+        value AS [property]
+FROM    sys.extended_properties AS ep
+        INNER JOIN sys.tables AS t
+            ON ep.major_id = t.object_id
+        INNER JOIN sys.schemas AS s
+            ON s.schema_id = t.schema_id
+        INNER JOIN sys.columns AS c
+            ON ep.major_id = c.object_id
+               AND ep.minor_id = c.column_id
+WHERE   class = 1
+ORDER BY t.name
+
+-- this is it you can filter on them s.name AS [schema],t.name AS [table],c.name AS [column]
+
+
+SELECT  s.name AS [schema],
+        t.name AS [table],
+        c.name AS [column],
+        value AS [property]
+FROM    sys.extended_properties AS ep
+        INNER JOIN sys.tables AS t
+            ON ep.major_id = t.object_id
+        INNER JOIN sys.schemas AS s
+            ON s.schema_id = t.schema_id
+        INNER JOIN sys.columns AS c
+            ON ep.major_id = c.object_id
+               AND ep.minor_id = c.column_id
+WHERE   class = 1 and c.name like 'End%'
+ORDER BY c.name
+
+-- looking in entire db for column that bengings with End
+
+SELECT  s.name AS [schema],
+        t.name AS [table],
+        c.name AS [column],
+        value AS [property]
+FROM    sys.extended_properties AS ep
+        INNER JOIN sys.tables AS t
+            ON ep.major_id = t.object_id
+        INNER JOIN sys.schemas AS s
+            ON s.schema_id = t.schema_id
+        INNER JOIN sys.columns AS c
+            ON ep.major_id = c.object_id
+               AND ep.minor_id = c.column_id
+WHERE   class = 1 and t.name = 'Employee'
+
+-- all info on tables cols thier relationships and purpose
+
+SELECT  FK.name AS FK_Table,
+        FkCol.name AS FK_Column,
+        PK.name AS PK_Table,
+        PkCol.name AS PK_Column,
+        OBJECT_NAME(f.object_id) AS Constraint_Name,
+        SCHEMA_NAME(FK.schema_id) AS fkSchema,
+        SCHEMA_NAME(PK.schema_id) AS pkSchema,
+        PkCol.name AS primarykey,
+        k.constraint_column_id AS ORDINAL_POSITION
+FROM    sys.objects AS PK
+        INNER JOIN sys.foreign_keys AS f
+            INNER JOIN sys.foreign_key_columns AS k
+                ON k.constraint_object_id = f.object_id
+            INNER JOIN sys.indexes AS i
+                ON f.referenced_object_id = i.object_id
+                   AND f.key_index_id = i.index_id
+            ON PK.object_id = f.referenced_object_id
+        INNER JOIN sys.objects AS FK
+            ON f.parent_object_id = FK.object_id
+        INNER JOIN sys.columns AS PkCol
+            ON f.referenced_object_id = PkCol.object_id
+               AND k.referenced_column_id = PkCol.column_id
+        INNER JOIN sys.columns AS FkCol
+            ON f.parent_object_id = FkCol.object_id
+               AND k.parent_column_id = FkCol.column_id
+ORDER BY FK_Table, FK_Column
+
+
+
+
+
+--CHECK constriant definitions
+SELECT  @@Servername AS ServerName ,
+        DB_NAME() AS DBName ,
+        OBJECT_SCHEMA_NAME(parent_object_id) AS SchemaName ,
+        OBJECT_NAME(parent_object_id) AS TableName ,
+        parent_column_id AS Column_NBR ,
+        Name AS CheckConstraintName ,
+        type ,
+        type_desc ,
+        create_date ,
+        OBJECT_DEFINITION(object_id) AS CheckConstraintDefinition
+FROM    sys.Check_constraints
+ORDER BY TableName ,
+        SchemaName ,
+        Column_NBR
+
+
+-- CHECK CONSTRAINTS
+	 SELECT so.name AS table_name, 
+          sc.name AS column_name, 
+          sm.text AS default_value
+     FROM sys.sysobjects so
+     JOIN sys.syscolumns sc ON sc.id = so.id
+LEFT JOIN sys.syscomments sm ON sm.id = sc.cdefault
+    WHERE so.xtype = 'U' 
+      AND so.name = 'Store'
+ ORDER BY so.[name], sc.colid
+ -- get default value of table
